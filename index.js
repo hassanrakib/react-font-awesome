@@ -40,19 +40,37 @@ async function run() {
         })
 
         app.get("/icons", async (req, res) => {
+
             // get the category from the client side
-            const category = req.query.category;
+            const category = req.query?.category;
+
+            // get the sortOrder from the client side
+            const sortOrder = parseInt(req.query?.sortOrder);
+
+            // query to filter out icons
             let query = {};
+
             // if category exists, add type property to the query object to query using type of the icon
             if (category) {
-                query.type= category;
+                query.type = category;
             }
-            const result = await icons.find(query).toArray();
+
+            // result to send to the client side
+            let result;
+
+            // if sortOrder exists sort otherwise don't
+            if (sortOrder) {
+                result = await icons.find(query).sort({ name: sortOrder }).toArray();
+            } else {
+                result = await icons.find(query).toArray();
+            }
+
+            // send response back to the client side
             res.send(result);
         })
 
 
-        
+
 
     } finally {
         // Ensures that the client will close when you finish/error
