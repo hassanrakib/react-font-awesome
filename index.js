@@ -41,8 +41,10 @@ async function run() {
 
         app.get("/icons", async (req, res) => {
 
-            // get the category from the client side
-            const category = req.query?.category;
+            // get the tagsToFilterIcons state as a string from the client side
+            const tagsString = req.query?.tags;
+            // create an array from the string by splitting tags by comma
+            const tags = tagsString.split(",");
 
             // get the sortOrder from the client side
             const sortOrder = parseInt(req.query?.sortOrder);
@@ -50,15 +52,15 @@ async function run() {
             // query to filter out icons
             let query = {};
 
-            // if category exists, add type property to the query object to query using type of the icon
-            if (category) {
-                query.type = category;
+            // if tags exist, add tags property to the query object to query using tags to filter out icons
+            if (tagsString.length) {
+                query.tags = { $in: tags }
             }
 
             // result to send to the client side
             let result;
 
-            // if sortOrder exists sort otherwise don't
+            // if sortOrder not zero sort alphabetically
             if (sortOrder) {
                 result = await icons.find(query).sort({ name: sortOrder }).toArray();
             } else {
